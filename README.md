@@ -1,2 +1,2 @@
-# go-lang-Projects
-Go-language projects are saved here
+# go-lang-programs
+Go-language programs are saved here
