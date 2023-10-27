@@ -8,42 +8,47 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type Names struct {
-	Data string `json:"data"`
-}
-
 func main() {
-	fmt.Println("Go MySQL Tutorial")
+	// Define the MySQL database connection parameters.
+	dsn := "root:root@tcp(localhost:3306)/Hello"
 
-	// Open up our database connection.
-	// I've set up a database on my local machine using phpmyadmin.
-	// The database is called testDb
-	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/Hello")
-
-	// if there is an error opening the connection, handle it
+	// Open a database connection.
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
-		fmt.Print(err.Error())
+		log.Fatal(err)
 	}
-
-	// defer the close till after the main function has finished
-	// executing
 	defer db.Close()
 
-	results, err := db.Query("select * from names")
-
+	// Test the database connection.
+	err = db.Ping()
 	if err != nil {
-		panic(err.Error())
-
+		log.Fatal(err)
 	}
-	for results.Next() {
-		var n Names
 
-		err = results.Scan(&n.Data)
-		if err != nil {
-			panic(err.Error())
+	// Query the database to select data from a table.
+	query := "SELECT * FROM names"
+	rows, err := db.Query(query)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
 
+	// Iterate through the rows and print the data.
+	for rows.Next() {
+		var (
+			column1Type string
+			column2Type int
+			// Define variables for each column in the table
+		)
+		if err := rows.Scan(&column1Type, &column2Type /* Assign variables for each column */); err != nil {
+			log.Fatal(err)
 		}
-		log.Printf(n.Data)
+
+		// Process or print the data.
+		fmt.Printf("Column1: %s, Column2: %d\n", column1Type, column2Type)
 	}
 
+	if err := rows.Err(); err != nil {
+		log.Fatal(err)
+	}
 }
